@@ -15,6 +15,19 @@ run_as_hermes() {
     su -s /bin/bash hermes -c "$1"
 }
 
+ensure_profile() {
+    local profile="$1"
+
+    if run_as_hermes "source /opt/hermes/.venv/bin/activate && cd /opt/hermes && HERMES_DATA_PATH=${HERMES_DATA_PATH:-/opt/data} hermes profile show $profile >/dev/null 2>&1"; then
+        echo "[$profile] Hermes profile already exists."
+        return 0
+    fi
+
+    echo "[$profile] Creating Hermes profile cloned from default..."
+    run_as_hermes "source /opt/hermes/.venv/bin/activate && cd /opt/hermes && HERMES_DATA_PATH=${HERMES_DATA_PATH:-/opt/data} hermes profile create $profile --clone default" || \
+    run_as_hermes "source /opt/hermes/.venv/bin/activate && cd /opt/hermes && HERMES_DATA_PATH=${HERMES_DATA_PATH:-/opt/data} hermes profile create $profile"
+}
+
 start_gateway() {
     local name="$1"
     local profile="$2"
@@ -41,6 +54,9 @@ start_gateway() {
         done
     ) &
 }
+
+ensure_profile "ens"
+ensure_profile "imobiliaria-clementino"
 
 start_gateway "core" "" "$HERMES_API_PORT_CORE" "$HERMES_API_KEY_CORE"
 start_gateway "ens" "ens" "$HERMES_API_PORT_ENS" "$HERMES_API_KEY_ENS"
