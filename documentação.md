@@ -12,7 +12,7 @@ Siga os passos pelo **Terminal SSH**:
    ```
 2. Baixe a arquitetura do repositório:
    ```bash
-   git clone https://github.com/schultz0z0/docker-llm-stack.git .
+   git clone https://github.com/schultz0z0/Servidor-LLM-v2.git .
    ```
 3. Crie o arquivo de variáveis de ambiente:
    ```bash
