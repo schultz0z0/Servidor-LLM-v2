@@ -4,6 +4,8 @@
 
 Sempre que precisar criar o servidor do zero em uma VPS nova ou limpar o ambiente atual, **NÃO** utilize os botões de implantação automática por URL dos painéis de hospedagem (pois o arquivo `.env` com as chaves de segurança não é enviado para o GitHub).
 
+http://searxng:8080
+
 Siga os passos pelo **Terminal SSH**:
 
 1. Crie uma pasta limpa para o projeto e acesse-a:
