@@ -112,7 +112,48 @@ docker exec -it llm-stack-hermes-1 env | grep HERMES_API_PORT
 
 ---
 
-## 6. Como provar que os pacotes foram instalados nos containers
+## 6. Workspaces dos Profiles Hermes e Paperclip
+
+Os profiles do Hermes ficam no mesmo volume persistente `./data/hermes`, mas cada empresa deve usar um workspace separado para evitar mistura de arquivos de trabalho.
+
+| Empresa / uso | Profile Hermes | Gateway working directory / Paperclip cwd | Command no Paperclip |
+|---|---|---|---|
+| NexusAI | `default` | `/opt/data/workspaces/nexusai` | `hermes` |
+| ENS | `ens` | `/opt/data/workspaces/ens` | `hermes -p ens` |
+| Imobiliaria Clementino | `imobiliaria-clementino` | `/opt/data/workspaces/imobiliaria-clementino` | `hermes -p imobiliaria-clementino` |
+
+Ao rodar `hermes setup` em cada profile, configure o **Gateway working directory** com o path correspondente da tabela acima.
+
+Importante: o `hermes setup` salva o caminho na configuracao, mas nao garante a criacao da pasta fisica. Apos criar/recriar o ambiente, rode uma vez:
+
+```bash
+docker exec -it llm-stack-paperclip-1 sh -lc 'mkdir -p /opt/data/workspaces/nexusai /opt/data/workspaces/ens /opt/data/workspaces/imobiliaria-clementino'
+```
+
+O `paperclip` e o `hermes` compartilham o mesmo volume em `/opt/data`, entao uma pasta criada em um container aparece no outro:
+
+```bash
+docker exec -it llm-stack-paperclip-1 sh -lc 'echo paperclip-ok > /opt/data/workspaces/ens/volume-test.txt'
+docker exec -it llm-stack-hermes-1 bash -lc 'cat /opt/data/workspaces/ens/volume-test.txt'
+docker exec -it llm-stack-paperclip-1 sh -lc 'rm -f /opt/data/workspaces/ens/volume-test.txt'
+```
+
+Para validar que o Paperclip enxerga os profiles e consegue chamar o Hermes local:
+
+```bash
+docker exec -it llm-stack-paperclip-1 sh -lc 'hermes profile list'
+docker exec -it llm-stack-paperclip-1 sh -lc 'cd /opt/data/workspaces/ens && hermes -p ens --help'
+```
+
+No container `hermes`, ative o virtualenv antes de chamar o CLI:
+
+```bash
+docker exec -it llm-stack-hermes-1 bash -lc 'source /opt/hermes/.venv/bin/activate && cd /opt/data/workspaces/ens && hermes -p ens --help'
+```
+
+---
+
+## 7. Como provar que os pacotes foram instalados nos containers
 
 Se você quiser auditar e ter certeza absoluta de que o build funcionou e todos os pacotes (Chromium, Playwright, Hermes CLI, etc.) estão rodando nativamente lá dentro, execute estes comandos no terminal da sua VPS:
 
@@ -139,7 +180,7 @@ docker exec -it llm-stack-open-webui-1 curl --version
 
 ---
 
-## 7. Credenciais Padronizadas
+## 8. Credenciais Padronizadas
 
 | Serviço | Email / User | Senha |
 |---|---|---|
@@ -147,7 +188,7 @@ docker exec -it llm-stack-open-webui-1 curl --version
 | Paperclip | raphaelschultz12@gmail.com | Pjrafa12@ |
 | Hermes API | — (usa API key) | sk-hrms-9f8e7d6c5b4a3a2b1c0d9e8f7a6b5c4d |
 
-## 8. Reset Total (Apagar tudo e recomeçar)
+## 9. Reset Total (Apagar tudo e recomeçar)
 
 ```bash
 cd ~/nexus-fullstack
