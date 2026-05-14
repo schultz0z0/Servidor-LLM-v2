@@ -2,8 +2,12 @@
 set -e
 
 # Keep permissions usable for files created by Paperclip in the shared volume.
+chown -R hermes:hermes /opt/data 2>/dev/null || true
+chmod -R u+rwX,g+rwX /opt/data 2>/dev/null || true
+
 (while true; do
     chown -R hermes:hermes /opt/data 2>/dev/null || true
+    chmod -R u+rwX,g+rwX /opt/data 2>/dev/null || true
     sleep 30
 done) &
 
@@ -32,8 +36,8 @@ start_gateway() {
                 run_as_hermes "source /opt/hermes/.venv/bin/activate && cd /opt/hermes && API_SERVER_ENABLED=true API_SERVER_HOST=0.0.0.0 API_SERVER_PORT=$port API_SERVER_KEY=$key GATEWAY_ALLOW_ALL_USERS=${GATEWAY_ALLOW_ALL_USERS:-true} HERMES_DATA_PATH=${HERMES_DATA_PATH:-/opt/data} hermes -p $profile gateway" || true
             fi
 
-            echo "[$name] Gateway exited; restarting in 5 seconds."
-            sleep 5
+            echo "[$name] Gateway exited; restarting in 60 seconds."
+            sleep 60
         done
     ) &
 }
