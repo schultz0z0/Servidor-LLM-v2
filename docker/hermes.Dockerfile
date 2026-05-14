@@ -9,6 +9,7 @@ RUN apt-get update && apt-get upgrade -y && \
 # Fazer bootstrap do pip dentro do venv do Hermes (criado sem pip) e instalar o Playwright
 RUN /opt/hermes/.venv/bin/python3 -m ensurepip --upgrade && \
     /opt/hermes/.venv/bin/python3 -m pip install --upgrade pip && \
+    /opt/hermes/.venv/bin/python3 -m pip install "hermes-agent[web,pty]" && \
     /opt/hermes/.venv/bin/python3 -m pip install playwright && \
     /opt/hermes/.venv/bin/python3 -m playwright install chromium && \
     /opt/hermes/.venv/bin/python3 -m playwright install-deps
@@ -24,3 +25,6 @@ RUN chmod +x /usr/local/bin/hermes-perms-watcher.sh
 
 COPY docker/hermes-all-in-one.sh /usr/local/bin/hermes-all-in-one.sh
 RUN chmod +x /usr/local/bin/hermes-all-in-one.sh
+
+COPY docker/hermes-kanban-dashboard.sh /usr/local/bin/hermes-kanban-dashboard.sh
+RUN chmod +x /usr/local/bin/hermes-kanban-dashboard.sh

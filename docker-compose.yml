@@ -11,16 +11,6 @@ services:
       - "${HERMES_API_PORT_CORE}"
       - "${HERMES_API_PORT_ENS}"
       - "${HERMES_API_PORT_CLEMENTINO}"
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.hermes-${COMPOSE_PROJECT_NAME}.rule=Host(`${HERMES_SUBDOMAIN}`)
-      - traefik.http.routers.hermes-${COMPOSE_PROJECT_NAME}.entrypoints=websecure
-      - traefik.http.routers.hermes-${COMPOSE_PROJECT_NAME}.tls.certresolver=letsencrypt
-      - traefik.http.services.hermes-${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=${HERMES_API_PORT_CORE}
-      - traefik.http.routers.hermes-${COMPOSE_PROJECT_NAME}-http.rule=Host(`${HERMES_SUBDOMAIN}`)
-      - traefik.http.routers.hermes-${COMPOSE_PROJECT_NAME}-http.entrypoints=web
-      - traefik.http.routers.hermes-${COMPOSE_PROJECT_NAME}-http.middlewares=hermes-${COMPOSE_PROJECT_NAME}-redirect
-      - traefik.http.middlewares.hermes-${COMPOSE_PROJECT_NAME}-redirect.redirectscheme.scheme=https
     env_file:
       - .env
     volumes:
@@ -28,6 +18,34 @@ services:
     environment:
       GATEWAY_ALLOW_ALL_USERS: "true"
       HERMES_DATA_PATH: "/opt/data"
+
+  kanban-hermes:
+    build:
+      context: .
+      dockerfile: docker/hermes.Dockerfile
+    restart: unless-stopped
+    entrypoint: [ "/usr/local/bin/hermes-kanban-dashboard.sh" ]
+    expose:
+      - "${HERMES_KANBAN_PORT}"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.kanban-hermes-${COMPOSE_PROJECT_NAME}.rule=Host(`${HERMES_SUBDOMAIN}`)
+      - traefik.http.routers.kanban-hermes-${COMPOSE_PROJECT_NAME}.entrypoints=websecure
+      - traefik.http.routers.kanban-hermes-${COMPOSE_PROJECT_NAME}.tls.certresolver=letsencrypt
+      - traefik.http.routers.kanban-hermes-${COMPOSE_PROJECT_NAME}.middlewares=kanban-hermes-${COMPOSE_PROJECT_NAME}-auth
+      - traefik.http.services.kanban-hermes-${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=${HERMES_KANBAN_PORT}
+      - traefik.http.routers.kanban-hermes-${COMPOSE_PROJECT_NAME}-http.rule=Host(`${HERMES_SUBDOMAIN}`)
+      - traefik.http.routers.kanban-hermes-${COMPOSE_PROJECT_NAME}-http.entrypoints=web
+      - traefik.http.routers.kanban-hermes-${COMPOSE_PROJECT_NAME}-http.middlewares=kanban-hermes-${COMPOSE_PROJECT_NAME}-redirect
+      - traefik.http.middlewares.kanban-hermes-${COMPOSE_PROJECT_NAME}-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.kanban-hermes-${COMPOSE_PROJECT_NAME}-auth.basicauth.users=${HERMES_KANBAN_AUTH_USER}:${HERMES_KANBAN_AUTH_PASSWORD_HASH}
+    env_file:
+      - .env
+    volumes:
+      - ./data/hermes:/opt/data
+    environment:
+      HERMES_DATA_PATH: "/opt/data"
+      HERMES_KANBAN_PORT: "${HERMES_KANBAN_PORT}"
 
   paperclip-db:
     image: postgres:16-alpine
