@@ -6,6 +6,13 @@ Sempre que precisar criar o servidor do zero em uma VPS nova ou limpar o ambient
 
 http://searxng:8080
 
+# Acesso de envs
+global = nano .env
+- profiles:
+  nexusai/default = nano data/hermes/.env
+  ens = nano data/hermes/profiles/ens/.env
+  imobiliaria-clementino = nano data/hermes/profiles/imobiliaria-clementino/.env
+
 Siga os passos pelo **Terminal SSH**:
 
 1. Crie uma pasta limpa para o projeto e acesse-a:
