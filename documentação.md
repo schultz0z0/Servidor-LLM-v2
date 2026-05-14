@@ -79,24 +79,33 @@ Para trocar de provider/modelo, basta alterar no `.env`:
 
 ---
 
-## 5. Validar a Integração da API do Hermes com Open WebUI
+## 5. Validar as APIs e Integrações dos Perfis do Hermes
 
-> **Nota:** A API do Hermes já vem ativada por padrão de forma 100% automática através das variáveis `API_SERVER_*` no arquivo `.env` e pela arquitetura dupla no `docker-compose.yml`. Não é necessário nenhum passo manual para ligá-la.
+> **Nota:** As APIs do Hermes já vêm ativadas por padrão de forma 100% automática através das variáveis `API_SERVER_*` no arquivo `.env` e pela arquitetura no `docker-compose.yml`. Não é necessário nenhum passo manual para ligá-las.
 
-Para testar se o Open WebUI está conseguindo enxergar a API do Hermes por debaixo dos panos, rode estes testes de saúde:
+Para testar se todas as APIs do Hermes estão respondendo corretamente e autorizando as chaves, rode os testes abaixo. Utilizando o `bash -c`, os testes lerão as portas e chaves diretamente das variáveis de ambiente de dentro do container:
 
-**1. Testar se a API está online (Ping de dentro do WebUI para o Hermes)**
+**1. Testar a API do Hermes Core (Profile Default - NexusAI)**
+*(Este é o profile principal conectado ao Open WebUI)*
 ```bash
-docker exec -it llm-stack-open-webui-1 curl http://hermes:8652/health
+docker exec -it llm-stack-hermes-1 bash -c 'curl http://localhost:$HERMES_API_PORT_CORE/health'
+docker exec -it llm-stack-hermes-1 bash -c 'curl http://localhost:$HERMES_API_PORT_CORE/v1/models -H "Authorization: Bearer $HERMES_API_KEY_CORE"'
 ```
-*A resposta esperada é: `{"status":"ok","platform":"hermes-agent"}`*
+*A resposta esperada do `/health` é: `{"status":"ok","platform":"hermes-agent"}`*
 
-**2. Testar se a chave está autorizando a listar os modelos**
+**2. Testar a API do Hermes ENS (Profile de Cliente ENS)**
 ```bash
-docker exec -it llm-stack-open-webui-1 curl http://hermes:8652/v1/models -H "Authorization: Bearer $HERMES_API_KEY_CORE"
+docker exec -it llm-stack-hermes-1 bash -c 'curl http://localhost:$HERMES_API_PORT_ENS/health'
+docker exec -it llm-stack-hermes-1 bash -c 'curl http://localhost:$HERMES_API_PORT_ENS/v1/models -H "Authorization: Bearer $HERMES_API_KEY_ENS"'
 ```
 
-**3. Verificar se as variáveis do Hermes chegaram no container**
+**3. Testar a API do Hermes Imobiliária Clementino (Profile de Cliente Imobiliária Clementino)**
+```bash
+docker exec -it llm-stack-hermes-1 bash -c 'curl http://localhost:$HERMES_API_PORT_CLEMENTINO/health'
+docker exec -it llm-stack-hermes-1 bash -c 'curl http://localhost:$HERMES_API_PORT_CLEMENTINO/v1/models -H "Authorization: Bearer $HERMES_API_KEY_CLEMENTINO"'
+```
+
+**4. Verificar se as portas e variáveis chegaram no container**
 ```bash
 docker exec -it llm-stack-hermes-1 env | grep HERMES_API_PORT
 ```
