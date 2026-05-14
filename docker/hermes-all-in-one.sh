@@ -42,4 +42,4 @@ start_gateway "core" "" "$HERMES_API_PORT_CORE" "$HERMES_API_KEY_CORE"
 start_gateway "ens" "ens" "$HERMES_API_PORT_ENS" "$HERMES_API_KEY_ENS"
 start_gateway "clementino" "imobiliaria-clementino" "$HERMES_API_PORT_CLEMENTINO" "$HERMES_API_KEY_CLEMENTINO"
 
-exec /opt/hermes/docker/entrypoint.sh "$@"
+wait

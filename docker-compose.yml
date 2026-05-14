@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     entrypoint: [ "/usr/local/bin/hermes-all-in-one.sh" ]
     ports:
-      - "4860"
+      - "${HERMES_PUBLIC_PORT}:${HERMES_API_PORT_CORE}"
     expose:
       - "${HERMES_API_PORT_CORE}"
       - "${HERMES_API_PORT_ENS}"
@@ -16,7 +16,7 @@ services:
       - traefik.http.routers.hermes-${COMPOSE_PROJECT_NAME}.rule=Host(`${HERMES_SUBDOMAIN}`)
       - traefik.http.routers.hermes-${COMPOSE_PROJECT_NAME}.entrypoints=websecure
       - traefik.http.routers.hermes-${COMPOSE_PROJECT_NAME}.tls.certresolver=letsencrypt
-      - traefik.http.services.hermes-${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=4860
+      - traefik.http.services.hermes-${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=${HERMES_API_PORT_CORE}
       - traefik.http.routers.hermes-${COMPOSE_PROJECT_NAME}-http.rule=Host(`${HERMES_SUBDOMAIN}`)
       - traefik.http.routers.hermes-${COMPOSE_PROJECT_NAME}-http.entrypoints=web
       - traefik.http.routers.hermes-${COMPOSE_PROJECT_NAME}-http.middlewares=hermes-${COMPOSE_PROJECT_NAME}-redirect
